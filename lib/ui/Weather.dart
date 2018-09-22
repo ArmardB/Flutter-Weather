@@ -12,7 +12,17 @@ class Weather extends StatefulWidget {
 class WeatherState extends State<Weather> {
   @override
   Widget build(BuildContext context) {
-    
+    return new Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text('Flutter Weather',
+
+        ),
+        actions: <Widget>[
+
+        ],
+      ),
+    );
   }
 
 }
