@@ -10,11 +10,24 @@ class Weather extends StatefulWidget {
   State<StatefulWidget> createState() {
     return new WeatherState();
   }
-
 }
 
 
 class WeatherState extends State<Weather> {
+
+  String _cityEntered;
+
+  Future _goToNextScreen(BuildContext context) async {
+    Map results = await Navigator.of(context).push(
+      new MaterialPageRoute<Map>(builder: (BuildContext context) {
+        return new ChangeCity();
+      })
+    );
+
+    if (results != null && results.containsKey('city')) {
+      _cityEntered = results['city'];
+    }
+  }
 
   void weatherInfo() async {
       Map data = await getWeatherData(util.openWeatherKey, util.defaultCity);
@@ -33,7 +46,11 @@ class WeatherState extends State<Weather> {
           ),
         ),
         actions: <Widget>[
-          IconButton(icon: new Icon(Icons.menu), onPressed: () => weatherInfo())
+          IconButton(
+              icon: new Icon(Icons.menu),
+              onPressed: () {
+                return _goToNextScreen(context);
+              })
         ],
       ),
       body: Stack(
@@ -49,18 +66,19 @@ class WeatherState extends State<Weather> {
             alignment: Alignment.topRight,
             margin: const EdgeInsets.fromLTRB(0.0, 10.9, 20.9, 0.0),
             child: Text(
-              'Medellín',
+              '${_cityEntered == null ? util.defaultCity : _cityEntered}',
               style: cityStyle(),
             ),
           ),
           Container(
-            alignment: Alignment.center,
+            alignment: Alignment.topCenter,
+            margin: EdgeInsets.fromLTRB(0.0, 200.0, 0.0, 0.0),
             child: Image.asset('images/light_rain.png'),
           ),
           // Weather Data Container
           Container(
-            margin: const EdgeInsets.fromLTRB(30.0, 400.0, 0.0, 0.0),
-            child: updateTemperatureWidget("Philadelphia"),
+            margin: const EdgeInsets.fromLTRB(100.0, 100.0, 0.0, 0.0),
+            child: updateTemperatureWidget('$_cityEntered'),
           )
         ],
       ),
@@ -89,28 +107,103 @@ TextStyle weatherIconStyle() {
     fontWeight: FontWeight.w500,
     fontSize: 49.9
   );
+
+  }
+
+TextStyle weatherMetaStyle() {
+  return new TextStyle(
+    color: Colors.white70,
+    fontStyle: FontStyle.normal,
+    fontWeight: FontWeight.w600,
+    fontSize: 17.0
+  );
 }
 
   Widget updateTemperatureWidget(String city) {
     return new FutureBuilder(
-      future: getWeatherData(util.openWeatherKey, city),
+      future: getWeatherData(util.openWeatherKey, city != null ? city :util.defaultCity),
       builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
         // get JSON data and setup widgets
         if (snapshot.hasData) {
           Map content = snapshot.data;
-          return new Container(
-            child: Column(
-              children: <Widget>[
-                ListTile(
-                  title: Text(content['main']['temp'].toString(),
-                  style: TextStyle(color: Colors.white, fontSize: 50.0, fontWeight: FontWeight.w500),),
-                )
-              ],
-            ),
-          );
+          if (content != null) {
+            double temp = content['main']['temp'];
+            return new Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  ListTile(
+                    title: Text(
+                      '${content['main']['temp'].toString()}°F',
+                      style: TextStyle(color: Colors.white, fontSize: 50.0, fontWeight: FontWeight.w500),),
+                    subtitle: ListTile(
+                      title: Text(
+                        'Humidty: ${content['main']['humidity'].toString()}%\n'
+                            'Min: ${content['main']['temp_min'].toString()}°F\n'
+                            'Max: ${content['main']['temp_max'].toString()}°F',
+                        style: weatherMetaStyle(),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            );
+          }
+          return Text('Loading', style: TextStyle(color: Colors.white70, fontSize: 22.5),);
+
         }
         return Text('Loading..', style: TextStyle(color: Colors.white, fontSize: 32.3),);
       });
 }
 
+class ChangeCity extends StatelessWidget {
+
+  var _cityFieldController = new TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        centerTitle: true,
+        title: Text('Change City'),
+      ),
+      body: Stack(
+        children: <Widget>[
+          Center(
+            child: Image.asset('images/white_snow.png',
+              width: 490.0,
+              height: 1200.0,
+              fit: BoxFit.fill,
+            ),
+          ),
+          ListView(
+            children: <Widget>[
+              ListTile(
+                title: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Enter a city...'
+                  ),
+                  controller: _cityFieldController,
+                  keyboardType: TextInputType.text,
+                ),
+              ),
+              ListTile(
+                title: FlatButton(
+                  color: Colors.white70,
+                    textColor: Colors.redAccent,
+                    onPressed: () {
+                      Navigator.pop(context, {
+                        'city': _cityFieldController.text
+                      });
+                    },
+                    child: Text('Get Weather')),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
 
