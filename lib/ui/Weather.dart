@@ -66,8 +66,6 @@ class WeatherState extends State<Weather> {
       ),
     );
   }
-
-
 }
 
 Future<Map> getWeatherData(String appId, String city) async {
