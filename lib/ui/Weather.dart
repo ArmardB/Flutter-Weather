@@ -57,20 +57,23 @@ class WeatherState extends State<Weather> {
             alignment: Alignment.center,
             child: Image.asset('images/light_rain.png'),
           ),
+          // Weather Data Container
           Container(
             margin: const EdgeInsets.fromLTRB(30.0, 400.0, 0.0, 0.0),
-            child: Text('89.9F', style: weatherIconStyle(),),
+            child: updateTemperatureWidget("Philadelphia"),
           )
         ],
       ),
     );
   }
 
-  Future<Map> getWeatherData(String appId, String city) async {
-    String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=${util.openWeatherKey}&units=imperial";
-    http.Response response = await http.get(apiUrl);
-    return json.decode(response.body);
-  }
+
+}
+
+Future<Map> getWeatherData(String appId, String city) async {
+  String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=${util.openWeatherKey}&units=imperial";
+  http.Response response = await http.get(apiUrl);
+  return json.decode(response.body);
 }
 
 TextStyle cityStyle() {
@@ -88,6 +91,28 @@ TextStyle weatherIconStyle() {
     fontWeight: FontWeight.w500,
     fontSize: 49.9
   );
+}
+
+  Widget updateTemperatureWidget(String city) {
+    return new FutureBuilder(
+      future: getWeatherData(util.openWeatherKey, city),
+      builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
+        // get JSON data and setup widgets
+        if (snapshot.hasData) {
+          Map content = snapshot.data;
+          return new Container(
+            child: Column(
+              children: <Widget>[
+                ListTile(
+                  title: Text(content['main']['temp'].toString(),
+                  style: TextStyle(color: Colors.white, fontSize: 50.0, fontWeight: FontWeight.w500),),
+                )
+              ],
+            ),
+          );
+        }
+        return Text('Loading..', style: TextStyle(color: Colors.white, fontSize: 32.3),);
+      });
 }
 
 
