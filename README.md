@@ -1,8 +1,3 @@
-# flutter_weather
+Utilizing the openweathermap.org API, users will be able to lookup basic details regarding the weather in any city in the world. 
 
-A new Flutter project.
-
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+![screen shot 2018-09-23 at 4 39 13 pm](https://user-images.githubusercontent.com/7697533/45932773-9f41a080-bf4f-11e8-9f3a-29a13cbc485d.png)![screen shot 2018-09-23 at 4 39 28 pm](https://user-images.githubusercontent.com/7697533/45932778-a668ae80-bf4f-11e8-9ac7-caa92769681f.png)
